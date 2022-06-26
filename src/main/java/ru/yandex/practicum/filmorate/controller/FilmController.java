@@ -10,11 +10,10 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequestMapping("/films")
-@Slf4j
 public class FilmController {
-
     private final List<Film> films = new ArrayList<>();
 
     @GetMapping
@@ -45,14 +44,24 @@ public class FilmController {
         return film;
     }
 
-    private void commonCheckFilm(@RequestBody Film film) {
-        if (film.getName().isBlank())
-            throw new ValidationException("Название не может быть пустым.");
+    private void commonCheckFilm(Film film) {
+        if (film.getName() == null || film.getName().isBlank())
+            throw new ValidationException("Название не может быть пустым. Введено: " + film.getName());
+        if (film.getDescription() == null)
+            throw new ValidationException("Описание не может быть пустым. Введено: " + film.getDescription());
         if (film.getDescription().length() > 200)
-            throw new ValidationException("Максимальная длина описания — 200 символов.");
+            throw new ValidationException("Максимальная длина описания — 200 символов. Введено: "
+                    + film.getDescription().length() + " символов.");
+        if (film.getReleaseDate() == null)
+            throw new ValidationException("Дата релиза не может быть пустой. Введено: " + film.getReleaseDate());
         if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28)))
-            throw new ValidationException("Дата релиза не должна быть раньше 28 декабря 1895 года.");
+            throw new ValidationException("Дата релиза не должна быть раньше 28 декабря 1895 года. Введено: "
+                    + film.getReleaseDate());
+        if (film.getDuration() == null)
+            throw new ValidationException("Поле продолжительность фильма не должно быть пустым. Введено: "
+                    + film.getDuration());
         if (film.getDuration() <= 0)
-            throw new ValidationException("Продолжительность фильма должна быть положительной.");
+            throw new ValidationException("Продолжительность фильма должна быть положительной. Введено: "
+                    + film.getDuration());
     }
 }

@@ -8,11 +8,7 @@ import ru.yandex.practicum.filmorate.model.User;
 import java.time.LocalDate;
 
 class UserControllerTest {
-    private UserController controller;
-
-    public UserControllerTest() {
-        controller = new UserController();
-    }
+    private final UserController controller = new UserController();
 
     @Test
     void createUser() {
@@ -32,11 +28,13 @@ class UserControllerTest {
                 .birthday(LocalDate.of(1994, 1, 1)).build();
 
         ValidationException e = Assertions.assertThrows(ValidationException.class, () -> controller.addUser(user));
-        Assertions.assertEquals("Электронная почта не может быть пустой и должна содержать символ @.",
+        Assertions.assertEquals("Электронная почта не может быть пустой и должна содержать символ @. " +
+                        "Введено: " + user.getEmail(),
                 e.getMessage(), "Сообщения об ошибке не совпадают.");
 
         ValidationException e2 = Assertions.assertThrows(ValidationException.class, () -> controller.addUser(user2));
-        Assertions.assertEquals("Электронная почта не может быть пустой и должна содержать символ @.",
+        Assertions.assertEquals("Электронная почта не может быть пустой и должна содержать символ @. " +
+                        "Введено: " + user2.getEmail(),
                 e2.getMessage(), "Сообщения об ошибке не совпадают.");
     }
 
@@ -46,7 +44,7 @@ class UserControllerTest {
                 .birthday(LocalDate.of(1994, 1, 1)).build();
 
         ValidationException e = Assertions.assertThrows(ValidationException.class, () -> controller.addUser(user));
-        Assertions.assertEquals("Логин не может быть пустым и содержать пробелы.",
+        Assertions.assertEquals("Логин не может быть пустым и содержать пробелы. Введено: " + user.getLogin(),
                 e.getMessage(), "Сообщения об ошибке не совпадают.");
     }
 
@@ -67,7 +65,7 @@ class UserControllerTest {
                 .birthday(LocalDate.of(2100, 1, 1)).build();
 
         ValidationException e = Assertions.assertThrows(ValidationException.class, () -> controller.addUser(user));
-        Assertions.assertEquals("Дата рождения не может быть в будущем.",
+        Assertions.assertEquals("Дата рождения не может быть в будущем. Введено: " + user.getBirthday(),
                 e.getMessage(), "Сообщения об ошибке не совпадают.");
     }
 
@@ -82,26 +80,26 @@ class UserControllerTest {
                 .birthday(LocalDate.of(1994, 1, 1)).build();
         User userWithoutBirthday = User.builder().email("bigman@ya.ru").login("BigMan").name("Mannish").build();
 
-        NullPointerException e = Assertions.assertThrows(NullPointerException.class,
+        ValidationException e = Assertions.assertThrows(ValidationException.class,
                 () -> controller.addUser(userEmpty));
-        Assertions.assertEquals(NullPointerException.class,
-                e.getClass(), "Не совпадает название ошибки.");
-        NullPointerException e2 = Assertions.assertThrows(NullPointerException.class,
+        Assertions.assertEquals("Электронная почта не может быть пустой и должна содержать символ @. " +
+                        "Введено: " + userEmpty.getEmail(), e.getMessage(), "Сообщения об ошибке не совпадают.");
+        ValidationException e2 = Assertions.assertThrows(ValidationException.class,
                 () -> controller.addUser(userWithoutLogin));
-        Assertions.assertEquals(NullPointerException.class,
-                e2.getClass(), "Не совпадает название ошибки.");
-        NullPointerException e3 = Assertions.assertThrows(NullPointerException.class,
+        Assertions.assertEquals("Логин не может быть пустым и содержать пробелы. Введено: "
+                        + userWithoutLogin.getLogin(), e2.getMessage(), "Сообщения об ошибке не совпадают.");
+        ValidationException e3 = Assertions.assertThrows(ValidationException.class,
                 () -> controller.addUser(userWithoutEmail));
-        Assertions.assertEquals(NullPointerException.class,
-                e3.getClass(), "Не совпадает название ошибки.");
-        NullPointerException e4 = Assertions.assertThrows(NullPointerException.class,
-                () -> controller.addUser(userWithoutName));
-        Assertions.assertEquals(NullPointerException.class,
-                e4.getClass(), "Не совпадает название ошибки.");
-        NullPointerException e5 = Assertions.assertThrows(NullPointerException.class,
+        Assertions.assertEquals("Электронная почта не может быть пустой и должна содержать символ @. " +
+                        "Введено: " + userWithoutEmail.getEmail(), e3.getMessage(),
+                "Сообщения об ошибке не совпадают.");
+        controller.addUser(userWithoutName);
+        Assertions.assertEquals(userWithoutName.getLogin(), controller.getUsers().get(0).getName());
+        ValidationException e4 = Assertions.assertThrows(ValidationException.class,
                 () -> controller.addUser(userWithoutBirthday));
-        Assertions.assertEquals(NullPointerException.class,
-                e5.getClass(), "Не совпадает название ошибки.");
+        Assertions.assertEquals("День рождения не может быть пустым. Введено: "
+                        + userWithoutBirthday.getBirthday(), e4.getMessage(),
+                "Сообщения об ошибке не совпадают.");
     }
 
     @Test
@@ -132,13 +130,15 @@ class UserControllerTest {
 
         ValidationException e = Assertions.assertThrows(ValidationException.class,
                 () -> controller.addUser(updatedUser));
-        Assertions.assertEquals("Электронная почта не может быть пустой и должна содержать символ @.",
-                e.getMessage(), "Сообщения об ошибке не совпадают.");
+        Assertions.assertEquals("Электронная почта не может быть пустой и должна содержать символ @. " +
+                        "Введено: " + updatedUser.getEmail(), e.getMessage(),
+                "Сообщения об ошибке не совпадают.");
 
         ValidationException e2 = Assertions.assertThrows(ValidationException.class,
                 () -> controller.addUser(updatedUser2));
-        Assertions.assertEquals("Электронная почта не может быть пустой и должна содержать символ @.",
-                e2.getMessage(), "Сообщения об ошибке не совпадают.");
+        Assertions.assertEquals("Электронная почта не может быть пустой и должна содержать символ @. " +
+                        "Введено: " + updatedUser2.getEmail(), e2.getMessage(),
+                "Сообщения об ошибке не совпадают.");
     }
 
     @Test
@@ -152,8 +152,8 @@ class UserControllerTest {
 
         ValidationException e = Assertions.assertThrows(ValidationException.class,
                 () -> controller.addUser(updatedUser));
-        Assertions.assertEquals("Логин не может быть пустым и содержать пробелы.",
-                e.getMessage(), "Сообщения об ошибке не совпадают.");
+        Assertions.assertEquals("Логин не может быть пустым и содержать пробелы. Введено: "
+                        + updatedUser.getLogin(), e.getMessage(), "Сообщения об ошибке не совпадают.");
     }
 
     @Test
@@ -182,7 +182,7 @@ class UserControllerTest {
 
         ValidationException e = Assertions.assertThrows(ValidationException.class,
                 () -> controller.addUser(updatedUser));
-        Assertions.assertEquals("Дата рождения не может быть в будущем.",
+        Assertions.assertEquals("Дата рождения не может быть в будущем. Введено: " + updatedUser.getBirthday(),
                 e.getMessage(), "Сообщения об ошибке не совпадают.");
     }
 
@@ -223,25 +223,27 @@ class UserControllerTest {
         User updatedUserWithoutBirthday = User.builder().id(user.getId()).email("bigman@ya.ru").login("BigMan")
                 .name("Mannish").build();
 
-        NullPointerException e = Assertions.assertThrows(NullPointerException.class,
+        ValidationException e = Assertions.assertThrows(ValidationException.class,
                 () -> controller.updateUser(updatedUserEmpty));
-        Assertions.assertEquals(NullPointerException.class,
-                e.getClass(), "Не совпадает название ошибки.");
-        NullPointerException e2 = Assertions.assertThrows(NullPointerException.class,
+        Assertions.assertEquals("Электронная почта не может быть пустой и должна содержать символ @. " +
+                        "Введено: " + updatedUserEmpty.getEmail(), e.getMessage(),
+                "Сообщения об ошибке не совпадают.");
+        ValidationException e2 = Assertions.assertThrows(ValidationException.class,
                 () -> controller.updateUser(updatedUserWithoutLogin));
-        Assertions.assertEquals(NullPointerException.class,
-                e2.getClass(), "Не совпадает название ошибки.");
-        NullPointerException e3 = Assertions.assertThrows(NullPointerException.class,
+        Assertions.assertEquals("Логин не может быть пустым и содержать пробелы. Введено: "
+                        + updatedUserWithoutLogin.getLogin(), e2.getMessage(),
+                "Сообщения об ошибке не совпадают.");
+        ValidationException e3 = Assertions.assertThrows(ValidationException.class,
                 () -> controller.updateUser(updatedUserWithoutEmail));
-        Assertions.assertEquals(NullPointerException.class,
-                e3.getClass(), "Не совпадает название ошибки.");
-        NullPointerException e4 = Assertions.assertThrows(NullPointerException.class,
-                () -> controller.updateUser(updatedUserWithoutName));
-        Assertions.assertEquals(NullPointerException.class,
-                e4.getClass(), "Не совпадает название ошибки.");
-        NullPointerException e5 = Assertions.assertThrows(NullPointerException.class,
+        Assertions.assertEquals("Электронная почта не может быть пустой и должна содержать символ @. " +
+                        "Введено: " + updatedUserWithoutEmail.getEmail(), e3.getMessage(),
+                "Сообщения об ошибке не совпадают.");
+        controller.updateUser(updatedUserWithoutName);
+        Assertions.assertEquals(updatedUserWithoutName.getLogin(), controller.getUsers().get(0).getName());
+        ValidationException e4 = Assertions.assertThrows(ValidationException.class,
                 () -> controller.updateUser(updatedUserWithoutBirthday));
-        Assertions.assertEquals(NullPointerException.class,
-                e5.getClass(), "Не совпадает название ошибки.");
+        Assertions.assertEquals("День рождения не может быть пустым. Введено: "
+                        + updatedUserWithoutBirthday.getBirthday(), e4.getMessage(),
+                "Сообщения об ошибке не совпадают.");
     }
 }

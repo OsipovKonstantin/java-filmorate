@@ -10,9 +10,9 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequestMapping("/users")
-@Slf4j
 public class UserController {
     private final List<User> users = new ArrayList<>();
 
@@ -44,14 +44,18 @@ public class UserController {
         return user;
     }
 
-    private void commonCheckUser(@RequestBody User user) {
-        if (user.getEmail().isBlank() || !user.getEmail().contains("@"))
-            throw new ValidationException("Электронная почта не может быть пустой и должна содержать символ @.");
-        if (user.getLogin().isBlank())
-            throw new ValidationException("Логин не может быть пустым и содержать пробелы.");
-        if (user.getName().isBlank())
+    private void commonCheckUser(User user) {
+        if (user.getEmail() == null || user.getEmail().isBlank() || !user.getEmail().contains("@"))
+            throw new ValidationException("Электронная почта не может быть пустой и должна содержать символ @. " +
+                    "Введено: " + user.getEmail());
+        if (user.getLogin() == null || user.getLogin().isBlank())
+            throw new ValidationException("Логин не может быть пустым и содержать пробелы. Введено: "
+                    + user.getLogin());
+        if (user.getName() == null || user.getName().isBlank())
             user.setName(user.getLogin());
+        if (user.getBirthday() == null)
+            throw new ValidationException("День рождения не может быть пустым. Введено: " + user.getBirthday());
         if (user.getBirthday().isAfter(LocalDate.now()))
-            throw new ValidationException("Дата рождения не может быть в будущем.");
+            throw new ValidationException("Дата рождения не может быть в будущем. Введено: " + user.getBirthday());
     }
 }
