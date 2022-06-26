@@ -1,20 +1,32 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.Validator;
 import java.time.LocalDate;
+import java.util.Set;
 
 class FilmControllerTest {
+    private Validator validator;
     private final FilmController controller = new FilmController();
+
+    @BeforeEach
+    public void beforeEach() {
+        validator = Validation.buildDefaultValidatorFactory().getValidator();
+    }
 
     @Test
     void createFilm() {
         Film film = Film.builder().name("Титаник").description("О крушении")
                 .releaseDate(LocalDate.of(1990, 1, 1)).duration(300L).build();
         controller.addFilm(film);
+
         Assertions.assertEquals(1, controller.getFilms().size(), "Количество фильмов не совпадает.");
         Assertions.assertEquals(film, controller.getFilms().get(0), "Фильмы не совпадают.");
     }
@@ -24,9 +36,8 @@ class FilmControllerTest {
         Film film = Film.builder().name(" ").description("О крушении")
                 .releaseDate(LocalDate.of(1990, 1, 1)).duration(300L).build();
 
-        ValidationException e = Assertions.assertThrows(ValidationException.class, () -> controller.addFilm(film));
-        Assertions.assertEquals("Название не может быть пустым. Введено: " + film.getName(), e.getMessage(),
-                "Сообщения об ошибке не совпадают.");
+        Set<ConstraintViolation<Film>> violations = validator.validate(film);
+        Assertions.assertFalse(violations.isEmpty());
     }
 
     @Test
@@ -38,10 +49,8 @@ class FilmControllerTest {
                         "году. Главные роли исполнили Леонардо Ди Каприо и Кейт Уинслет.")
                 .releaseDate(LocalDate.of(1990, 1, 1)).duration(300L).build();
 
-        ValidationException e = Assertions.assertThrows(ValidationException.class, () -> controller.addFilm(film));
-        Assertions.assertEquals("Максимальная длина описания — 200 символов. Введено: "
-                        + film.getDescription().length() + " символов.", e.getMessage(),
-                "Сообщения об ошибке не совпадают.");
+        Set<ConstraintViolation<Film>> violations = validator.validate(film);
+        Assertions.assertFalse(violations.isEmpty());
     }
 
     @Test
@@ -61,14 +70,10 @@ class FilmControllerTest {
         Film film2 = Film.builder().name("Титаник").description("О крушении")
                 .releaseDate(LocalDate.of(1990, 1, 1)).duration(0L).build();
 
-        ValidationException e = Assertions.assertThrows(ValidationException.class, () -> controller.addFilm(film));
-        Assertions.assertEquals("Продолжительность фильма должна быть положительной. Введено: "
-                        + film.getDuration(), e.getMessage(), "Сообщения об ошибке не совпадают.");
-
-        ValidationException e2 = Assertions.assertThrows(ValidationException.class, () -> controller.addFilm(film2));
-        Assertions.assertEquals("Продолжительность фильма должна быть положительной. Введено: "
-                        + film2.getDuration(), e2.getMessage(),
-                "Сообщения об ошибке не совпадают.");
+        Set<ConstraintViolation<Film>> violations = validator.validate(film);
+        Assertions.assertFalse(violations.isEmpty());
+        Set<ConstraintViolation<Film>> violations2 = validator.validate(film2);
+        Assertions.assertFalse(violations2.isEmpty());
     }
 
     @Test
@@ -82,29 +87,16 @@ class FilmControllerTest {
         Film filmWithoutDuration = Film.builder().name("Титаник").description("О крушении")
                 .releaseDate(LocalDate.of(1990, 1, 1)).build();
 
-        ValidationException e = Assertions.assertThrows(ValidationException.class,
-                () -> controller.addFilm(filmEmpty));
-        Assertions.assertEquals("Название не может быть пустым. Введено: " + filmEmpty.getName(), e.getMessage(),
-                "Сообщения об ошибке не совпадают.");
-        ValidationException e2 = Assertions.assertThrows(ValidationException.class,
-                () -> controller.addFilm(filmWithoutName));
-        Assertions.assertEquals("Название не может быть пустым. Введено: " + filmWithoutName.getName(),
-                e2.getMessage(), "Сообщения об ошибке не совпадают.");
-        ValidationException e3 = Assertions.assertThrows(ValidationException.class,
-                () -> controller.addFilm(filmWithoutDescription));
-        Assertions.assertEquals("Описание не может быть пустым. Введено: "
-                        + filmWithoutDescription.getDescription(), e3.getMessage(),
-                "Сообщения об ошибке не совпадают.");
-        ValidationException e4 = Assertions.assertThrows(ValidationException.class,
-                () -> controller.addFilm(filmWithoutReleaseDate));
-        Assertions.assertEquals("Дата релиза не может быть пустой. Введено: "
-                        + filmWithoutReleaseDate.getReleaseDate(), e4.getMessage(),
-                "Сообщения об ошибке не совпадают.");
-        ValidationException e5 = Assertions.assertThrows(ValidationException.class,
-                () -> controller.addFilm(filmWithoutDuration));
-        Assertions.assertEquals("Поле продолжительность фильма не должно быть пустым. Введено: "
-                        + filmWithoutDuration.getDuration(), e5.getMessage(),
-                "Сообщения об ошибке не совпадают.");
+        Set<ConstraintViolation<Film>> violations = validator.validate(filmEmpty);
+        Assertions.assertFalse(violations.isEmpty());
+        Set<ConstraintViolation<Film>> violations2 = validator.validate(filmWithoutName);
+        Assertions.assertFalse(violations2.isEmpty());
+        Set<ConstraintViolation<Film>> violations3 = validator.validate(filmWithoutDescription);
+        Assertions.assertFalse(violations3.isEmpty());
+        Set<ConstraintViolation<Film>> violations4 = validator.validate(filmWithoutReleaseDate);
+        Assertions.assertFalse(violations4.isEmpty());
+        Set<ConstraintViolation<Film>> violations5 = validator.validate(filmWithoutDuration);
+        Assertions.assertFalse(violations5.isEmpty());
     }
 
     @Test
@@ -128,10 +120,8 @@ class FilmControllerTest {
         controller.addFilm(film);
         Film updatedFilm = film.toBuilder().name(" ").build();
 
-        ValidationException e = Assertions.assertThrows(ValidationException.class,
-                () -> controller.updateFilm(updatedFilm));
-        Assertions.assertEquals("Название не может быть пустым. Введено: " + updatedFilm.getName(),
-                e.getMessage(), "Сообщения об ошибке не совпадают.");
+        Set<ConstraintViolation<Film>> violations = validator.validate(updatedFilm);
+        Assertions.assertFalse(violations.isEmpty());
     }
 
     @Test
@@ -145,11 +135,8 @@ class FilmControllerTest {
                 "на борту лайнера, совершавшего свой первый и последний рейс через Атлантический океан в " +
                 "1912 году. Главные роли исполнили Леонардо Ди Каприо и Кейт Уинслет.").build();
 
-        ValidationException e = Assertions.assertThrows(ValidationException.class,
-                () -> controller.updateFilm(updatedFilm));
-        Assertions.assertEquals("Максимальная длина описания — 200 символов. Введено: "
-                        + updatedFilm.getDescription().length() + " символов.", e.getMessage(),
-                "Сообщения об ошибке не совпадают.");
+        Set<ConstraintViolation<Film>> violations = validator.validate(updatedFilm);
+        Assertions.assertFalse(violations.isEmpty());
     }
 
     @Test
@@ -173,15 +160,10 @@ class FilmControllerTest {
         Film updatedFilm = film.toBuilder().duration(-100L).build();
         Film updatedFilm2 = film.toBuilder().duration(0L).build();
 
-        ValidationException e = Assertions.assertThrows(ValidationException.class,
-                () -> controller.updateFilm(updatedFilm));
-        Assertions.assertEquals("Продолжительность фильма должна быть положительной. Введено: "
-                        + updatedFilm.getDuration(), e.getMessage(), "Сообщения об ошибке не совпадают.");
-
-        ValidationException e2 = Assertions.assertThrows(ValidationException.class,
-                () -> controller.updateFilm(updatedFilm2));
-        Assertions.assertEquals("Продолжительность фильма должна быть положительной. Введено: "
-                        + updatedFilm2.getDuration(), e2.getMessage(), "Сообщения об ошибке не совпадают.");
+        Set<ConstraintViolation<Film>> violations = validator.validate(updatedFilm);
+        Assertions.assertFalse(violations.isEmpty());
+        Set<ConstraintViolation<Film>> violations2 = validator.validate(updatedFilm2);
+        Assertions.assertFalse(violations2.isEmpty());
     }
 
     @Test
@@ -220,28 +202,15 @@ class FilmControllerTest {
         Film updatedFilmWithoutDuration = Film.builder().id(film.getId()).name("Титаник").description("О крушении")
                 .releaseDate(LocalDate.of(1990, 1, 1)).build();
 
-        ValidationException e = Assertions.assertThrows(ValidationException.class,
-                () -> controller.updateFilm(updatedFilmEmpty));
-        Assertions.assertEquals("Название не может быть пустым. Введено: " + updatedFilmEmpty.getName(),
-                e.getMessage(), "Сообщения об ошибке не совпадают.");
-        ValidationException e2 = Assertions.assertThrows(ValidationException.class,
-                () -> controller.updateFilm(updatedFilmWithoutName));
-        Assertions.assertEquals("Название не может быть пустым. Введено: " + updatedFilmWithoutName.getName(),
-                e2.getMessage(), "Сообщения об ошибке не совпадают.");
-        ValidationException e3 = Assertions.assertThrows(ValidationException.class,
-                () -> controller.updateFilm(updatedFilmWithoutDescription));
-        Assertions.assertEquals("Описание не может быть пустым. Введено: "
-                        + updatedFilmWithoutDescription.getDescription(), e3.getMessage(),
-                "Сообщения об ошибке не совпадают.");
-        ValidationException e4 = Assertions.assertThrows(ValidationException.class,
-                () -> controller.updateFilm(updatedFilmWithoutReleaseDate));
-        Assertions.assertEquals("Дата релиза не может быть пустой. Введено: "
-                        + updatedFilmWithoutReleaseDate.getReleaseDate(), e4.getMessage(),
-                "Сообщения об ошибке не совпадают.");
-        ValidationException e5 = Assertions.assertThrows(ValidationException.class,
-                () -> controller.updateFilm(updatedFilmWithoutDuration));
-        Assertions.assertEquals("Поле продолжительность фильма не должно быть пустым. Введено: "
-                        + updatedFilmWithoutDuration.getDuration(), e5.getMessage(),
-                "Сообщения об ошибке не совпадают.");
+        Set<ConstraintViolation<Film>> violations = validator.validate(updatedFilmEmpty);
+        Assertions.assertFalse(violations.isEmpty());
+        Set<ConstraintViolation<Film>> violations2 = validator.validate(updatedFilmWithoutName);
+        Assertions.assertFalse(violations2.isEmpty());
+        Set<ConstraintViolation<Film>> violations3 = validator.validate(updatedFilmWithoutDescription);
+        Assertions.assertFalse(violations3.isEmpty());
+        Set<ConstraintViolation<Film>> violations4 = validator.validate(updatedFilmWithoutReleaseDate);
+        Assertions.assertFalse(violations4.isEmpty());
+        Set<ConstraintViolation<Film>> violations5 = validator.validate(updatedFilmWithoutDuration);
+        Assertions.assertFalse(violations5.isEmpty());
     }
 }

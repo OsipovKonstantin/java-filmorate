@@ -1,14 +1,25 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.Validator;
 import java.time.LocalDate;
+import java.util.Set;
 
 class UserControllerTest {
+    private Validator validator;
     private final UserController controller = new UserController();
+
+    @BeforeEach
+    public void beforeEach() {
+        validator = Validation.buildDefaultValidatorFactory().getValidator();
+    }
 
     @Test
     void createUser() {
@@ -27,15 +38,10 @@ class UserControllerTest {
         User user2 = User.builder().email("bigmanya.ru").login("BigMan").name("Mannish")
                 .birthday(LocalDate.of(1994, 1, 1)).build();
 
-        ValidationException e = Assertions.assertThrows(ValidationException.class, () -> controller.addUser(user));
-        Assertions.assertEquals("Электронная почта не может быть пустой и должна содержать символ @. " +
-                        "Введено: " + user.getEmail(),
-                e.getMessage(), "Сообщения об ошибке не совпадают.");
-
-        ValidationException e2 = Assertions.assertThrows(ValidationException.class, () -> controller.addUser(user2));
-        Assertions.assertEquals("Электронная почта не может быть пустой и должна содержать символ @. " +
-                        "Введено: " + user2.getEmail(),
-                e2.getMessage(), "Сообщения об ошибке не совпадают.");
+        Set<ConstraintViolation<User>> violations = validator.validate(user);
+        Assertions.assertFalse(violations.isEmpty());
+        Set<ConstraintViolation<User>> violations2 = validator.validate(user2);
+        Assertions.assertFalse(violations2.isEmpty());
     }
 
     @Test
@@ -43,9 +49,8 @@ class UserControllerTest {
         User user = User.builder().email("bigman@ya.ru").login(" ").name("Mannish")
                 .birthday(LocalDate.of(1994, 1, 1)).build();
 
-        ValidationException e = Assertions.assertThrows(ValidationException.class, () -> controller.addUser(user));
-        Assertions.assertEquals("Логин не может быть пустым и содержать пробелы. Введено: " + user.getLogin(),
-                e.getMessage(), "Сообщения об ошибке не совпадают.");
+        Set<ConstraintViolation<User>> violations = validator.validate(user);
+        Assertions.assertFalse(violations.isEmpty());
     }
 
     @Test
@@ -64,9 +69,8 @@ class UserControllerTest {
         User user = User.builder().email("bigman@ya.ru").login("BigMan").name("Mannish")
                 .birthday(LocalDate.of(2100, 1, 1)).build();
 
-        ValidationException e = Assertions.assertThrows(ValidationException.class, () -> controller.addUser(user));
-        Assertions.assertEquals("Дата рождения не может быть в будущем. Введено: " + user.getBirthday(),
-                e.getMessage(), "Сообщения об ошибке не совпадают.");
+        Set<ConstraintViolation<User>> violations = validator.validate(user);
+        Assertions.assertFalse(violations.isEmpty());
     }
 
     @Test
@@ -80,26 +84,16 @@ class UserControllerTest {
                 .birthday(LocalDate.of(1994, 1, 1)).build();
         User userWithoutBirthday = User.builder().email("bigman@ya.ru").login("BigMan").name("Mannish").build();
 
-        ValidationException e = Assertions.assertThrows(ValidationException.class,
-                () -> controller.addUser(userEmpty));
-        Assertions.assertEquals("Электронная почта не может быть пустой и должна содержать символ @. " +
-                        "Введено: " + userEmpty.getEmail(), e.getMessage(), "Сообщения об ошибке не совпадают.");
-        ValidationException e2 = Assertions.assertThrows(ValidationException.class,
-                () -> controller.addUser(userWithoutLogin));
-        Assertions.assertEquals("Логин не может быть пустым и содержать пробелы. Введено: "
-                        + userWithoutLogin.getLogin(), e2.getMessage(), "Сообщения об ошибке не совпадают.");
-        ValidationException e3 = Assertions.assertThrows(ValidationException.class,
-                () -> controller.addUser(userWithoutEmail));
-        Assertions.assertEquals("Электронная почта не может быть пустой и должна содержать символ @. " +
-                        "Введено: " + userWithoutEmail.getEmail(), e3.getMessage(),
-                "Сообщения об ошибке не совпадают.");
+        Set<ConstraintViolation<User>> violations = validator.validate(userEmpty);
+        Assertions.assertFalse(violations.isEmpty());
+        Set<ConstraintViolation<User>> violations2 = validator.validate(userWithoutLogin);
+        Assertions.assertFalse(violations2.isEmpty());
+        Set<ConstraintViolation<User>> violations3 = validator.validate(userWithoutEmail);
+        Assertions.assertFalse(violations3.isEmpty());
         controller.addUser(userWithoutName);
         Assertions.assertEquals(userWithoutName.getLogin(), controller.getUsers().get(0).getName());
-        ValidationException e4 = Assertions.assertThrows(ValidationException.class,
-                () -> controller.addUser(userWithoutBirthday));
-        Assertions.assertEquals("День рождения не может быть пустым. Введено: "
-                        + userWithoutBirthday.getBirthday(), e4.getMessage(),
-                "Сообщения об ошибке не совпадают.");
+        Set<ConstraintViolation<User>> violations4 = validator.validate(userWithoutBirthday);
+        Assertions.assertFalse(violations4.isEmpty());
     }
 
     @Test
@@ -124,21 +118,13 @@ class UserControllerTest {
 
         User updatedUser = user.toBuilder().email(" ").login("SmallWoman").name("Womanish")
                 .birthday(LocalDate.of(2004, 12, 12)).build();
-
         User updatedUser2 = user.toBuilder().email("smallwomangoogle.com").login("SmallWoman").name("Womanish")
                 .birthday(LocalDate.of(2004, 12, 12)).build();
 
-        ValidationException e = Assertions.assertThrows(ValidationException.class,
-                () -> controller.addUser(updatedUser));
-        Assertions.assertEquals("Электронная почта не может быть пустой и должна содержать символ @. " +
-                        "Введено: " + updatedUser.getEmail(), e.getMessage(),
-                "Сообщения об ошибке не совпадают.");
-
-        ValidationException e2 = Assertions.assertThrows(ValidationException.class,
-                () -> controller.addUser(updatedUser2));
-        Assertions.assertEquals("Электронная почта не может быть пустой и должна содержать символ @. " +
-                        "Введено: " + updatedUser2.getEmail(), e2.getMessage(),
-                "Сообщения об ошибке не совпадают.");
+        Set<ConstraintViolation<User>> violations = validator.validate(updatedUser);
+        Assertions.assertFalse(violations.isEmpty());
+        Set<ConstraintViolation<User>> violations2 = validator.validate(updatedUser2);
+        Assertions.assertFalse(violations2.isEmpty());
     }
 
     @Test
@@ -150,10 +136,8 @@ class UserControllerTest {
         User updatedUser = user.toBuilder().email("smallwoman@google.com").login(" ").name("Womanish")
                 .birthday(LocalDate.of(2004, 12, 12)).build();
 
-        ValidationException e = Assertions.assertThrows(ValidationException.class,
-                () -> controller.addUser(updatedUser));
-        Assertions.assertEquals("Логин не может быть пустым и содержать пробелы. Введено: "
-                        + updatedUser.getLogin(), e.getMessage(), "Сообщения об ошибке не совпадают.");
+        Set<ConstraintViolation<User>> violations = validator.validate(updatedUser);
+        Assertions.assertFalse(violations.isEmpty());
     }
 
     @Test
@@ -180,10 +164,8 @@ class UserControllerTest {
         User updatedUser = user.toBuilder().email("smallwoman@google.com").login("SmallWoman").name("Womanish")
                 .birthday(LocalDate.of(2100, 12, 12)).build();
 
-        ValidationException e = Assertions.assertThrows(ValidationException.class,
-                () -> controller.addUser(updatedUser));
-        Assertions.assertEquals("Дата рождения не может быть в будущем. Введено: " + updatedUser.getBirthday(),
-                e.getMessage(), "Сообщения об ошибке не совпадают.");
+        Set<ConstraintViolation<User>> violations = validator.validate(updatedUser);
+        Assertions.assertFalse(violations.isEmpty());
     }
 
 
@@ -223,27 +205,15 @@ class UserControllerTest {
         User updatedUserWithoutBirthday = User.builder().id(user.getId()).email("bigman@ya.ru").login("BigMan")
                 .name("Mannish").build();
 
-        ValidationException e = Assertions.assertThrows(ValidationException.class,
-                () -> controller.updateUser(updatedUserEmpty));
-        Assertions.assertEquals("Электронная почта не может быть пустой и должна содержать символ @. " +
-                        "Введено: " + updatedUserEmpty.getEmail(), e.getMessage(),
-                "Сообщения об ошибке не совпадают.");
-        ValidationException e2 = Assertions.assertThrows(ValidationException.class,
-                () -> controller.updateUser(updatedUserWithoutLogin));
-        Assertions.assertEquals("Логин не может быть пустым и содержать пробелы. Введено: "
-                        + updatedUserWithoutLogin.getLogin(), e2.getMessage(),
-                "Сообщения об ошибке не совпадают.");
-        ValidationException e3 = Assertions.assertThrows(ValidationException.class,
-                () -> controller.updateUser(updatedUserWithoutEmail));
-        Assertions.assertEquals("Электронная почта не может быть пустой и должна содержать символ @. " +
-                        "Введено: " + updatedUserWithoutEmail.getEmail(), e3.getMessage(),
-                "Сообщения об ошибке не совпадают.");
+        Set<ConstraintViolation<User>> violations = validator.validate(updatedUserEmpty);
+        Assertions.assertFalse(violations.isEmpty());
+        Set<ConstraintViolation<User>> violations2 = validator.validate(updatedUserWithoutLogin);
+        Assertions.assertFalse(violations2.isEmpty());
+        Set<ConstraintViolation<User>> violations3 = validator.validate(updatedUserWithoutEmail);
+        Assertions.assertFalse(violations3.isEmpty());
         controller.updateUser(updatedUserWithoutName);
         Assertions.assertEquals(updatedUserWithoutName.getLogin(), controller.getUsers().get(0).getName());
-        ValidationException e4 = Assertions.assertThrows(ValidationException.class,
-                () -> controller.updateUser(updatedUserWithoutBirthday));
-        Assertions.assertEquals("День рождения не может быть пустым. Введено: "
-                        + updatedUserWithoutBirthday.getBirthday(), e4.getMessage(),
-                "Сообщения об ошибке не совпадают.");
+        Set<ConstraintViolation<User>> violations4 = validator.validate(updatedUserWithoutBirthday);
+        Assertions.assertFalse(violations4.isEmpty());
     }
 }

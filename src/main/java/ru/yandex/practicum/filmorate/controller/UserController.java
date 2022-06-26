@@ -6,7 +6,7 @@ import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.GeneratorUserId;
 
-import java.time.LocalDate;
+import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,7 +22,7 @@ public class UserController {
     }
 
     @PostMapping
-    public User addUser(@RequestBody User user) {
+    public User addUser(@Valid @RequestBody User user) {
         commonCheckUser(user);
         user.setId(GeneratorUserId.getId());
 
@@ -32,7 +32,7 @@ public class UserController {
     }
 
     @PutMapping
-    public User updateUser(@RequestBody User user) {
+    public User updateUser(@Valid @RequestBody User user) {
         commonCheckUser(user);
         if (users.stream().noneMatch(u -> u.getId() == user.getId()))
             throw new ValidationException("Невозможно обновить пользователя. id: " + user.getId() + " не существует.");
@@ -45,17 +45,7 @@ public class UserController {
     }
 
     private void commonCheckUser(User user) {
-        if (user.getEmail() == null || user.getEmail().isBlank() || !user.getEmail().contains("@"))
-            throw new ValidationException("Электронная почта не может быть пустой и должна содержать символ @. " +
-                    "Введено: " + user.getEmail());
-        if (user.getLogin() == null || user.getLogin().isBlank())
-            throw new ValidationException("Логин не может быть пустым и содержать пробелы. Введено: "
-                    + user.getLogin());
         if (user.getName() == null || user.getName().isBlank())
             user.setName(user.getLogin());
-        if (user.getBirthday() == null)
-            throw new ValidationException("День рождения не может быть пустым. Введено: " + user.getBirthday());
-        if (user.getBirthday().isAfter(LocalDate.now()))
-            throw new ValidationException("Дата рождения не может быть в будущем. Введено: " + user.getBirthday());
     }
 }
