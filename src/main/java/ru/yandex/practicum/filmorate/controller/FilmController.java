@@ -1,48 +1,64 @@
 package ru.yandex.practicum.filmorate.controller;
 
-import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.service.GeneratorFilmId;
+import ru.yandex.practicum.filmorate.service.film.FilmService;
+import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 
 import javax.validation.Valid;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
-@Slf4j
 @RestController
 @RequestMapping("/films")
 public class FilmController {
-    private final List<Film> films = new ArrayList<>();
+    private final FilmStorage filmStorage;
+    private final FilmService filmService;
+
+    @Autowired
+    public FilmController (FilmStorage filmStorage, FilmService filmService) {
+        this.filmStorage = filmStorage;
+        this.filmService = filmService;
+    }
 
     @GetMapping
     public List<Film> getFilms() {
-        return films;
+        return filmStorage.getFilms();
+    }
+
+    @GetMapping("/{id}")
+    public Film getFilmById(@PathVariable Long id) {
+        return filmStorage.getFilmById(id);
     }
 
     @PostMapping
     public Film addFilm(@Valid @RequestBody Film film) {
         commonCheckFilm(film);
-        film.setId(GeneratorFilmId.getId());
-
-        films.add(film);
-        log.debug("Добавлен фильм {}.", film);
-        return film;
+        return filmStorage.addFilm(film);
     }
 
     @PutMapping
     public Film updateFilm(@Valid @RequestBody Film film) {
         commonCheckFilm(film);
-        if (films.stream().noneMatch(f -> f.getId() == film.getId()))
-            throw new ValidationException("Невозможно обновить фильм. id " + film.getId() + " не существует.");
+        return filmStorage.updateFilm(film);
+    }
 
-        for (int i = 0; i < films.size(); i++)
-            if (films.get(i).getId() == film.getId())
-                films.set(i, film);
-        log.debug("Обновлен фильм {}.", film);
-        return film;
+    @PutMapping("{id}/like/{userId}")
+    public Set<Long> addLike(@PathVariable Long id, @PathVariable Long userId) {
+        return filmService.addLike(id, userId);
+    }
+
+    @DeleteMapping("/{id}/like/{userId}")
+    public Set<Long> deleteLike(@PathVariable Long id, @PathVariable Long userId) {
+        return filmService.deleteLike(id, userId);
+    }
+
+    @GetMapping("/popular")
+    public List<Film> getNthPopularFilms(@RequestParam(defaultValue = "10") int count) {
+        return filmService.getNthPopularFilms(count);
     }
 
     private void commonCheckFilm(Film film) {

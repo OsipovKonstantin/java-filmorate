@@ -1,47 +1,69 @@
 package ru.yandex.practicum.filmorate.controller;
 
-import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.service.GeneratorUserId;
+import ru.yandex.practicum.filmorate.service.user.UserService;
+import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import javax.validation.Valid;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
-@Slf4j
 @RestController
 @RequestMapping("/users")
 public class UserController {
-    private final List<User> users = new ArrayList<>();
+    private final UserStorage userStorage;
+    private final UserService userService;
+
+    @Autowired
+    public UserController (UserStorage userStorage, UserService userService) {
+        this.userStorage = userStorage;
+        this.userService = userService;
+    }
 
     @GetMapping
     public List<User> getUsers() {
-        return users;
+        return userStorage.getUsers();
+    }
+
+    @GetMapping("/{id}")
+    public User getUserById(@PathVariable Long id) {
+        return userStorage.getUserById(id);
     }
 
     @PostMapping
     public User addUser(@Valid @RequestBody User user) {
         commonCheckUser(user);
-        user.setId(GeneratorUserId.getId());
-
-        users.add(user);
-        log.debug("Добавлен пользователь {}.", user);
-        return user;
+        return userStorage.addUser(user);
     }
 
     @PutMapping
     public User updateUser(@Valid @RequestBody User user) {
         commonCheckUser(user);
-        if (users.stream().noneMatch(u -> u.getId() == user.getId()))
-            throw new ValidationException("Невозможно обновить пользователя. id: " + user.getId() + " не существует.");
+        return userStorage.updateUser(user);
+    }
 
-        for (int i = 0; i < users.size(); i++)
-            if (users.get(i).getId() == user.getId())
-                users.set(i, user);
-        log.debug("Обновлен пользователь {}.", user);
-        return user;
+    @PutMapping("/{id}/friends/{friendId}")
+    public Set<User> addFriend(@PathVariable Long id, @PathVariable Long friendId) {
+        return userService.addFriend(id, friendId);
+    }
+
+    @DeleteMapping("/{id}/friends/{friendId}")
+    public Set<User> deleteFriend(@PathVariable Long id, @PathVariable Long friendId) {
+        return userService.deleteFriend(id, friendId);
+    }
+
+    @GetMapping("/{id}/friends")
+    public Set<User> getFriends(@PathVariable Long id) {
+        return userStorage.getUserById(id).getFriends().stream().map(userStorage::getUserById)
+                .collect(Collectors.toSet());
+    }
+
+    @GetMapping("/{id}/friends/common/{otherId}")
+    public Set<User> getCommonFriends(@PathVariable Long id, @PathVariable Long otherId) {
+        return userService.getCommonFriends(id, otherId);
     }
 
     private void commonCheckUser(User user) {

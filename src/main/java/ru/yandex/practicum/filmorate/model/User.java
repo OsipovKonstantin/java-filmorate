@@ -5,11 +5,14 @@ import lombok.Data;
 
 import javax.validation.constraints.*;
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
 @Builder(toBuilder = true)
 public class User {
     private long id;
+    private final Set<Long> friends = new HashSet<>();
     @Email
     @NotBlank
     private String email;
@@ -19,4 +22,12 @@ public class User {
     @NotNull
     @PastOrPresent
     private LocalDate birthday;
+
+    public void addFriend(Long friendId) {
+        this.friends.add(friendId);
+    }
+
+    public void deleteFriend(Long friendId) {
+        this.friends.remove(friendId);
+    }
 }
