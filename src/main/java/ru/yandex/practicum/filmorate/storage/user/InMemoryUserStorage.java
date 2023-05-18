@@ -7,7 +7,6 @@ import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.GeneratorUserId;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 
 @Slf4j
@@ -46,7 +45,7 @@ public class InMemoryUserStorage implements UserStorage {
     public void deleteUserById(Long userId) {
         User user = getUserById(userId);
         if (user == null)
-            throw new UserNotFoundException(String.format("Пользователя с id %d не существует.",  userId));
+            throw new UserNotFoundException(String.format("Пользователя с id %d не существует.", userId));
         users.remove(user);
     }
 
