@@ -8,6 +8,7 @@ import ru.yandex.practicum.filmorate.service.GeneratorFilmId;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 @Slf4j
 @Component
@@ -24,15 +25,15 @@ public class InMemoryFilmStorage implements FilmStorage {
 
     @Override
     public Film updateFilm(Film film) {
-        if (films
-                .stream()
-                .noneMatch(f -> f.getId() == film.getId()))
+        Integer position = Stream.iterate(0, i -> i < films.size(), i -> i + 1)
+                .filter(i -> films.get(i).getId() == film.getId())
+                .findFirst().orElse(null);
+
+        if (position == null)
             throw new FilmNotFoundException(String.format("Невозможно обновить фильм. id %d не существует.",
                     film.getId()));
 
-        for (int i = 0; i < films.size(); i++)
-            if (films.get(i).getId() == film.getId())
-                films.set(i, film);
+        films.set(position, film);
         log.debug("Обновлен фильм {}.", film);
         return film;
     }
@@ -40,8 +41,6 @@ public class InMemoryFilmStorage implements FilmStorage {
     @Override
     public void deleteFilmById(Long filmId) {
         Film film = getFilmById(filmId);
-        if (film == null)
-            throw new FilmNotFoundException(String.format("Фильма с id %d не существует.", filmId));
         films.remove(film);
     }
 
@@ -52,12 +51,14 @@ public class InMemoryFilmStorage implements FilmStorage {
 
     @Override
     public Film getFilmById(Long id) {
-        if (films.stream().noneMatch(f -> f.getId() == id))
-            throw new FilmNotFoundException(String.format("Фильма с id %s не существует.", id));
-
-        return films.stream()
+        Film film = films.stream()
                 .filter(f -> f.getId() == id)
                 .findFirst()
                 .orElse(null);
+
+        if (film == null)
+            throw new FilmNotFoundException(String.format("Фильма с id %s не существует.", id));
+
+        return film;
     }
 }

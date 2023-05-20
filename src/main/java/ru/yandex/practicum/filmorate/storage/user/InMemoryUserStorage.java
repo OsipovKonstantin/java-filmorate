@@ -8,6 +8,7 @@ import ru.yandex.practicum.filmorate.service.GeneratorUserId;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 @Slf4j
 @Component
@@ -30,13 +31,16 @@ public class InMemoryUserStorage implements UserStorage {
 
     @Override
     public User updateUser(User user) {
-        if (users.stream().noneMatch(u -> u.getId() == user.getId()))
+        Integer position = Stream.iterate(0, i -> i < users.size(), i -> i + 1)
+                .filter(i -> users.get(i).getId() == user.getId())
+                .findFirst()
+                .orElse(null);
+
+        if (position == null)
             throw new UserNotFoundException(String.format("Невозможно обновить пользователя. id: %d не существует.",
                     user.getId()));
 
-        for (int i = 0; i < users.size(); i++)
-            if (users.get(i).getId() == user.getId())
-                users.set(i, user);
+        users.set(position, user);
         log.debug("Обновлен пользователь {}.", user);
         return user;
     }
@@ -44,19 +48,19 @@ public class InMemoryUserStorage implements UserStorage {
     @Override
     public void deleteUserById(Long userId) {
         User user = getUserById(userId);
-        if (user == null)
-            throw new UserNotFoundException(String.format("Пользователя с id %d не существует.", userId));
         users.remove(user);
     }
 
     @Override
     public User getUserById(Long id) {
-        if (users.stream().noneMatch(u -> u.getId() == id))
-            throw new UserNotFoundException(String.format("Пользователя с id %d не существует.", id));
-
-        return users.stream()
+        User user = users.stream()
                 .filter(u -> u.getId() == id)
                 .findFirst()
                 .orElse(null);
+
+        if (user == null)
+            throw new UserNotFoundException(String.format("Пользователя с id %d не существует.", id));
+
+        return user;
     }
 }

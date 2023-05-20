@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -10,36 +11,42 @@ import ru.yandex.practicum.filmorate.exceptions.UserNotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.ErrorResponse;
 
+@Slf4j
 @RestControllerAdvice("ru.yandex.practicum.filmorate")
 public class ErrorHandler {
 
     @ExceptionHandler(ValidationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleValidationException(final ValidationException e) {
+        log.warn("{}", e.getMessage());
         return new ErrorResponse("Ошибка валидации", e.getMessage());
     }
 
     @ExceptionHandler(UserNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleUserNotFoundException(final UserNotFoundException e) {
+        log.warn("{}", e.getMessage());
         return new ErrorResponse("Пользователь не найден", e.getMessage());
     }
 
     @ExceptionHandler(FriendNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleFriendNotFoundException(final FriendNotFoundException e) {
+        log.warn("{}", e.getMessage());
         return new ErrorResponse("Друг не найден", e.getMessage());
     }
 
     @ExceptionHandler(FilmNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleFilmNotFoundException(final FilmNotFoundException e) {
+        log.warn("{}", e.getMessage());
         return new ErrorResponse("Фильм не найден", e.getMessage());
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ErrorResponse handleException(Throwable e) {
+    public ErrorResponse handleException(Exception e) {
+        log.warn("{}", e.getMessage());
         return new ErrorResponse("Произошла непредвиденная ошибка", e.getMessage());
     }
 }

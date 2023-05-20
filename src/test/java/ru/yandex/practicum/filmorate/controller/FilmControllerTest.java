@@ -51,11 +51,7 @@ class FilmControllerTest {
 
     @Test
     void createFilmWithDescriptionLengthMoreThan200() {
-        Film film = Film.builder().name("Титаник").description("Американский фильм-катастрофа 1997 года, снятый " +
-                        "режиссёром Джеймсом Кэмероном, в котором показана гибель легендарного лайнера «Титаник». " +
-                        "Герои фильма, будучи представителями различных социальных слоёв, влюбились друг в друга на " +
-                        "борту лайнера, совершавшего свой первый и последний рейс через Атлантический океан в 1912 " +
-                        "году. Главные роли исполнили Леонардо Ди Каприо и Кейт Уинслет.")
+        Film film = Film.builder().name("Титаник").description("A".repeat(777))
                 .releaseDate(LocalDate.of(1990, 1, 1)).duration(300L).build();
 
         Set<ConstraintViolation<Film>> violations = validator.validate(film);
@@ -138,11 +134,7 @@ class FilmControllerTest {
         Film film = Film.builder().name("Титаник").description("О крушении")
                 .releaseDate(LocalDate.of(1990, 1, 1)).duration(300L).build();
         controller.addFilm(film);
-        Film updatedFilm = film.toBuilder().description("Американский фильм-катастрофа 1997 года, снятый " +
-                "режиссёром Джеймсом Кэмероном, в котором показана гибель легендарного лайнера «Титаник». " +
-                "Герои фильма, будучи представителями различных социальных слоёв, влюбились друг в друга " +
-                "на борту лайнера, совершавшего свой первый и последний рейс через Атлантический океан в " +
-                "1912 году. Главные роли исполнили Леонардо Ди Каприо и Кейт Уинслет.").build();
+        Film updatedFilm = film.toBuilder().description("A".repeat(777)).build();
 
         Set<ConstraintViolation<Film>> violations = validator.validate(updatedFilm);
         Assertions.assertFalse(violations.isEmpty());
