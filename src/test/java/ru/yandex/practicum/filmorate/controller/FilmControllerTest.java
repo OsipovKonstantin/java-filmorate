@@ -3,8 +3,14 @@ package ru.yandex.practicum.filmorate.controller;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import ru.yandex.practicum.filmorate.exceptions.FilmNotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.service.film.FilmService;
+import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.film.InMemoryFilmStorage;
+import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
+import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
@@ -14,7 +20,10 @@ import java.util.Set;
 
 class FilmControllerTest {
     private Validator validator;
-    private final FilmController controller = new FilmController();
+    private final FilmStorage filmStorage = new InMemoryFilmStorage();
+    private final UserStorage userStorage = new InMemoryUserStorage();
+    private final FilmService filmService = new FilmService(filmStorage, userStorage);
+    private final FilmController controller = new FilmController(filmStorage, filmService);
 
     @BeforeEach
     public void beforeEach() {
@@ -42,11 +51,7 @@ class FilmControllerTest {
 
     @Test
     void createFilmWithDescriptionLengthMoreThan200() {
-        Film film = Film.builder().name("Титаник").description("Американский фильм-катастрофа 1997 года, снятый " +
-                        "режиссёром Джеймсом Кэмероном, в котором показана гибель легендарного лайнера «Титаник». " +
-                        "Герои фильма, будучи представителями различных социальных слоёв, влюбились друг в друга на " +
-                        "борту лайнера, совершавшего свой первый и последний рейс через Атлантический океан в 1912 " +
-                        "году. Главные роли исполнили Леонардо Ди Каприо и Кейт Уинслет.")
+        Film film = Film.builder().name("Титаник").description("A".repeat(777))
                 .releaseDate(LocalDate.of(1990, 1, 1)).duration(300L).build();
 
         Set<ConstraintViolation<Film>> violations = validator.validate(film);
@@ -60,7 +65,7 @@ class FilmControllerTest {
 
         ValidationException e = Assertions.assertThrows(ValidationException.class, () -> controller.addFilm(film));
         Assertions.assertEquals("Дата релиза не должна быть раньше 28 декабря 1895 года. Введено: "
-                        + film.getReleaseDate(), e.getMessage(), "Сообщения об ошибке не совпадают.");
+                + film.getReleaseDate(), e.getMessage(), "Сообщения об ошибке не совпадают.");
     }
 
     @Test
@@ -129,11 +134,7 @@ class FilmControllerTest {
         Film film = Film.builder().name("Титаник").description("О крушении")
                 .releaseDate(LocalDate.of(1990, 1, 1)).duration(300L).build();
         controller.addFilm(film);
-        Film updatedFilm = film.toBuilder().description("Американский фильм-катастрофа 1997 года, снятый " +
-                "режиссёром Джеймсом Кэмероном, в котором показана гибель легендарного лайнера «Титаник». " +
-                "Герои фильма, будучи представителями различных социальных слоёв, влюбились друг в друга " +
-                "на борту лайнера, совершавшего свой первый и последний рейс через Атлантический океан в " +
-                "1912 году. Главные роли исполнили Леонардо Ди Каприо и Кейт Уинслет.").build();
+        Film updatedFilm = film.toBuilder().description("A".repeat(777)).build();
 
         Set<ConstraintViolation<Film>> violations = validator.validate(updatedFilm);
         Assertions.assertFalse(violations.isEmpty());
@@ -149,7 +150,7 @@ class FilmControllerTest {
         ValidationException e = Assertions.assertThrows(ValidationException.class,
                 () -> controller.updateFilm(updatedFilm));
         Assertions.assertEquals("Дата релиза не должна быть раньше 28 декабря 1895 года. Введено: "
-                        + updatedFilm.getReleaseDate(), e.getMessage(), "Сообщения об ошибке не совпадают.");
+                + updatedFilm.getReleaseDate(), e.getMessage(), "Сообщения об ошибке не совпадают.");
     }
 
     @Test
@@ -171,18 +172,12 @@ class FilmControllerTest {
         Film film = Film.builder().name("Титаник").description("О крушении")
                 .releaseDate(LocalDate.of(1990, 1, 1)).duration(300L).build();
         controller.addFilm(film);
-        Film updatedFilm = film.toBuilder().id(-1).build();
-        Film updatedFilm2 = film.toBuilder().id(9999).build();
+        Film updatedFilm = film.toBuilder().id(9999).build();
 
-        ValidationException e = Assertions.assertThrows(ValidationException.class,
+        FilmNotFoundException e = Assertions.assertThrows(FilmNotFoundException.class,
                 () -> controller.updateFilm(updatedFilm));
         Assertions.assertEquals("Невозможно обновить фильм. id " + updatedFilm.getId() + " не существует.",
                 e.getMessage(), "Сообщения об ошибке не совпадают.");
-
-        ValidationException e2 = Assertions.assertThrows(ValidationException.class,
-                () -> controller.updateFilm(updatedFilm2));
-        Assertions.assertEquals("Невозможно обновить фильм. id " + updatedFilm2.getId() + " не существует.",
-                e2.getMessage(), "Сообщения об ошибке не совпадают.");
     }
 
 

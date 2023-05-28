@@ -3,8 +3,11 @@ package ru.yandex.practicum.filmorate.controller;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import ru.yandex.practicum.filmorate.exceptions.ValidationException;
+import ru.yandex.practicum.filmorate.exceptions.UserNotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.user.UserService;
+import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
+import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
@@ -14,7 +17,9 @@ import java.util.Set;
 
 class UserControllerTest {
     private Validator validator;
-    private final UserController controller = new UserController();
+    private final UserStorage userStorage = new InMemoryUserStorage();
+    private final UserService userService = new UserService(userStorage);
+    private final UserController controller = new UserController(userStorage, userService);
 
     @BeforeEach
     public void beforeEach() {
@@ -175,18 +180,12 @@ class UserControllerTest {
                 .birthday(LocalDate.of(1994, 1, 1)).build();
         controller.addUser(user);
 
-        User updatedUser = user.toBuilder().id(-1).build();
-        User updatedUser2 = user.toBuilder().id(9999).build();
+        User updatedUser = user.toBuilder().id(9999).build();
 
-        ValidationException e = Assertions.assertThrows(ValidationException.class,
+        UserNotFoundException e = Assertions.assertThrows(UserNotFoundException.class,
                 () -> controller.updateUser(updatedUser));
         Assertions.assertEquals("Невозможно обновить пользователя. id: " + updatedUser.getId()
-                        + " не существует.", e.getMessage(), "Сообщения об ошибке не совпадают.");
-
-        ValidationException e2 = Assertions.assertThrows(ValidationException.class,
-                () -> controller.updateUser(updatedUser2));
-        Assertions.assertEquals("Невозможно обновить пользователя. id: " + updatedUser2.getId()
-                + " не существует.", e2.getMessage(), "Сообщения об ошибке не совпадают.");
+                + " не существует.", e.getMessage(), "Сообщения об ошибке не совпадают.");
     }
 
     @Test

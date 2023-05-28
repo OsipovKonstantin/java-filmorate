@@ -8,11 +8,14 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.Size;
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
 @Builder(toBuilder = true)
 public class Film {
     private long id;
+    private final Set<Long> likes = new HashSet<>();
     @NotBlank
     private String name;
     @NotNull
@@ -23,4 +26,12 @@ public class Film {
     @NotNull
     @Positive
     private Long duration;
+
+    public void addLike(Long userId) {
+        this.likes.add(userId);
+    }
+
+    public void deleteLike(Long userId) {
+        this.likes.remove(userId);
+    }
 }
