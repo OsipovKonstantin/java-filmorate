@@ -1,0 +1,107 @@
+-- INSERT INTO users (user_id, email, login, name, birthday)
+-- VALUES (1, 'a@ya.ru', 'a_login', 'a_name', '1990-12-31');
+-- INSERT INTO users (user_id, email, login, name, birthday)
+-- VALUES (2, 'john@example.com', 'johndoe', 'John Doe', '1990-05-15');
+-- INSERT INTO users (user_id, email, login, name, birthday)
+-- VALUES (3, 'jane@example.com', 'janedoe', 'Jane Doe', '1988-08-20');
+-- INSERT INTO users (user_id, email, login, name, birthday)
+-- VALUES (4, 'bob@example.com', 'bobby88', 'Bob Smith', '1975-02-28');
+-- INSERT INTO users (user_id, email, login, name, birthday)
+-- VALUES (5, 'alice@example.com', 'alicerd7', 'Alice Rodriguez', '1995-11-01');
+-- INSERT INTO users (user_id, email, login, name, birthday)
+-- VALUES (6, 'mark@example.com', 'markymark22', 'Mark Johnson', '1986-07-12');
+-- INSERT INTO users (user_id, email, login, name, birthday)
+-- VALUES (7, 'sarah@example.com', 'sarahnyc1234', 'Sarah Williams', '2000-01-05');
+-- INSERT INTO users (user_id, email, login, name, birthday)
+-- VALUES (8, 'peter@example.com', 'peteyboy89', 'Peter Lee ', '1992-04-18');
+-- INSERT INTO users (user_id, email, login, name, birthday)
+-- VALUES (9, 'lisa@example.com', 'lisamarie99 ', NULL, '1979-09-30');
+--
+-- INSERT INTO users (user_id, email, login, name, birthday)
+-- VALUES (10, 'lisa@ya.com', 'sfsdf ', NULL, '2979-09-30');
+--
+INSERT INTO STATUS (STATUS_ID, NAME) VALUES(1, 'UNCONFIRMED');
+INSERT INTO STATUS (STATUS_ID, NAME) VALUES(2, 'CONFIRMED');
+
+INSERT INTO RATINGS (RATING_ID, NAME) VALUES (1, 'G');
+INSERT INTO RATINGS (RATING_ID, NAME) VALUES (2, 'PG');
+INSERT INTO RATINGS (RATING_ID, NAME) VALUES (3, 'PG13');
+INSERT INTO RATINGS (RATING_ID, NAME) VALUES (4, 'R');
+INSERT INTO RATINGS (RATING_ID, NAME) VALUES (5, 'NC17');
+
+INSERT INTO GENRES (GENRE_ID, NAME) VALUES (1, 'COMEDY');
+INSERT INTO GENRES (GENRE_ID, NAME) VALUES (2, 'DRAMA');
+INSERT INTO GENRES (GENRE_ID, NAME) VALUES (3, 'CARTOON');
+INSERT INTO GENRES (GENRE_ID, NAME) VALUES (4, 'THRILLER');
+INSERT INTO GENRES (GENRE_ID, NAME) VALUES (5, 'DOCUMENTARY');
+INSERT INTO GENRES (GENRE_ID, NAME) VALUES (6, 'ACTION');
+--
+-- INSERT INTO FRIENDS (USER_ID, FRIEND_ID, STATUS_ID) VALUES (1, 2, 1);
+-- INSERT INTO FRIENDS (USER_ID, FRIEND_ID, STATUS_ID) VALUES (1, 3, 1);
+-- INSERT INTO FRIENDS (USER_ID, FRIEND_ID, STATUS_ID) VALUES (1, 4, 2);
+-- INSERT INTO FRIENDS (USER_ID, FRIEND_ID, STATUS_ID) VALUES (1, 5, 1);
+-- INSERT INTO FRIENDS (USER_ID, FRIEND_ID, STATUS_ID) VALUES (1, 6, 1);
+-- INSERT INTO FRIENDS (USER_ID, FRIEND_ID, STATUS_ID) VALUES (1, 7, 2);
+-- INSERT INTO FRIENDS (USER_ID, FRIEND_ID, STATUS_ID) VALUES (1, 8, 1);
+-- INSERT INTO FRIENDS (USER_ID, FRIEND_ID, STATUS_ID) VALUES (1, 9, 1);
+-- INSERT INTO FRIENDS (USER_ID, FRIEND_ID, STATUS_ID) VALUES (2, 4, 2);
+-- INSERT INTO FRIENDS (USER_ID, FRIEND_ID, STATUS_ID) VALUES (2, 5, 2);
+-- INSERT INTO FRIENDS (USER_ID, FRIEND_ID, STATUS_ID) VALUES (2, 6, 2);
+-- INSERT INTO FRIENDS (USER_ID, FRIEND_ID, STATUS_ID) VALUES (2, 7, 2);
+-- INSERT INTO FRIENDS (USER_ID, FRIEND_ID, STATUS_ID) VALUES (2, 8, 2);
+-- INSERT INTO FRIENDS (USER_ID, FRIEND_ID, STATUS_ID) VALUES (2, 9, 2);
+-- INSERT INTO FRIENDS (USER_ID, FRIEND_ID, STATUS_ID) VALUES (3, 2, 2);
+-- INSERT INTO FRIENDS (USER_ID, FRIEND_ID, STATUS_ID) VALUES (3, 4, 1);
+-- INSERT INTO FRIENDS (USER_ID, FRIEND_ID, STATUS_ID) VALUES (3, 5, 2);
+-- INSERT INTO FRIENDS (USER_ID, FRIEND_ID, STATUS_ID) VALUES (3, 6, 2);
+-- INSERT INTO FRIENDS (USER_ID, FRIEND_ID, STATUS_ID) VALUES (3, 7, 2);
+-- INSERT INTO FRIENDS (USER_ID, FRIEND_ID, STATUS_ID) VALUES (3, 8, 2);
+-- INSERT INTO FRIENDS (USER_ID, FRIEND_ID, STATUS_ID) VALUES (3, 9, 1);
+-- INSERT INTO FRIENDS (USER_ID, FRIEND_ID, STATUS_ID) VALUES (4, 6, 2);
+--
+
+-- INSERT INTO FILMS (NAME, DESCRIPTION, RELEASE_DATE, DURATION, RATING_ID)
+-- VALUES ('Звездные войны: Последние джедаи',
+--         'продолжение знаменитой саги о битвах...',
+--         '2017-12-15', 152, 3);
+--
+-- INSERT INTO FILMS (FILM_ID, NAME, DESCRIPTION, RELEASE_DATE, DURATION, RATING_ID)
+-- VALUES (2, 'Мстители: Война бесконечности',
+--         'фантастический экшн-боевик, в котором герои Marvel объединяются для того, чтобы остановить Таноса - ' ||
+--         'могущественного злодея, желающего уничтожить половину вселенной',
+--         '2018-04-27', 149, 3);
+--
+-- INSERT INTO FILMS (FILM_ID, NAME, DESCRIPTION, RELEASE_DATE, DURATION, RATING_ID)
+-- VALUES (3, 'Зеленая миля',
+--         'драматический фильм, основанный на романе Стивена Кинга. Герой фильма - ' ||
+--         'карцерный надзиратель, который сталкивается с необычным заключенным, обладающим ' ||
+--         'сверхъестественными способностями',
+--         '1999-12-06', 189, 4);
+--
+-- INSERT INTO FILM_GENRE (FILM_ID, GENRE_ID) VALUES (1, 6);
+-- INSERT INTO FILM_GENRE (FILM_ID, GENRE_ID) VALUES (1, 8);
+-- INSERT INTO FILM_GENRE (FILM_ID, GENRE_ID) VALUES (1, 10);
+-- INSERT INTO FILM_GENRE (FILM_ID, GENRE_ID) VALUES (1, 11);
+-- INSERT INTO FILM_GENRE (FILM_ID, GENRE_ID) VALUES (1, 12);
+-- INSERT INTO FILM_GENRE (FILM_ID, GENRE_ID) VALUES (2, 6);
+-- INSERT INTO FILM_GENRE (FILM_ID, GENRE_ID) VALUES (2, 8);
+-- INSERT INTO FILM_GENRE (FILM_ID, GENRE_ID) VALUES (2, 13);
+-- INSERT INTO FILM_GENRE (FILM_ID, GENRE_ID) VALUES (3, 2);
+-- INSERT INTO FILM_GENRE (FILM_ID, GENRE_ID) VALUES (3, 11);
+-- INSERT INTO FILM_GENRE (FILM_ID, GENRE_ID) VALUES (3, 14);
+-- INSERT INTO FILM_GENRE (FILM_ID, GENRE_ID) VALUES (3, 15);
+--
+-- INSERT INTO FILM_LIKES (FILM_ID, USER_ID) VALUES (1, 1);
+-- INSERT INTO FILM_LIKES (FILM_ID, USER_ID) VALUES (1, 3);
+-- INSERT INTO FILM_LIKES (FILM_ID, USER_ID) VALUES (1, 5);
+-- INSERT INTO FILM_LIKES (FILM_ID, USER_ID) VALUES (1, 7);
+-- INSERT INTO FILM_LIKES (FILM_ID, USER_ID) VALUES (1, 9);
+-- INSERT INTO FILM_LIKES (FILM_ID, USER_ID) VALUES (2, 2);
+-- INSERT INTO FILM_LIKES (FILM_ID, USER_ID) VALUES (2, 4);
+-- INSERT INTO FILM_LIKES (FILM_ID, USER_ID) VALUES (2, 6);
+-- INSERT INTO FILM_LIKES (FILM_ID, USER_ID) VALUES (2, 8);
+-- INSERT INTO FILM_LIKES (FILM_ID, USER_ID) VALUES (3, 1);
+-- INSERT INTO FILM_LIKES (FILM_ID, USER_ID) VALUES (3, 2);
+-- INSERT INTO FILM_LIKES (FILM_ID, USER_ID) VALUES (3, 3);
+-- INSERT INTO FILM_LIKES (FILM_ID, USER_ID) VALUES (3, 4);
+-- INSERT INTO FILM_LIKES (FILM_ID, USER_ID) VALUES (3, 5);
