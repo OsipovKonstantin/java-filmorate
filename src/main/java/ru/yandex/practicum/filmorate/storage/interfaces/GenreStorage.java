@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.storage;
+package ru.yandex.practicum.filmorate.storage.interfaces;
 
 import ru.yandex.practicum.filmorate.model.Genre;
 
@@ -8,6 +8,5 @@ public interface GenreStorage {
 
     List<Genre> getGenres();
 
-    Genre getGenres(int id);
-    List<Genre> getGenresByFilmId(Long id);
+    Genre getGenre(int id);
 }

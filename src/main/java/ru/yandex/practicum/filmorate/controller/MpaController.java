@@ -5,26 +5,26 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import ru.yandex.practicum.filmorate.model.Mpa;
-import ru.yandex.practicum.filmorate.storage.MpaStorage;
+import ru.yandex.practicum.filmorate.service.film.MpaService;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("mpa")
 public class MpaController {
-    private final MpaStorage mpaStorage;
+    private final MpaService mpaService;
 
-    public MpaController(MpaStorage mpaStorage) {
-        this.mpaStorage = mpaStorage;
+    public MpaController(MpaService mpaService) {
+        this.mpaService = mpaService;
     }
 
     @GetMapping
-    public List<Mpa> getMpa() {
-        return mpaStorage.getMpa();
+    public List<Mpa> getMpas() {
+        return mpaService.getMpas();
     }
 
     @GetMapping("{id}")
     public Mpa getMpa(@PathVariable int id) {
-        return mpaStorage.getMpa(id);
+        return mpaService.getMpa(id);
     }
 }
