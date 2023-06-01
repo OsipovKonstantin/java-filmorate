@@ -8,14 +8,13 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.PastOrPresent;
 import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.HashMap;
 
 @Data
 @Builder(toBuilder = true)
 public class User {
     private long id;
-    private final Set<Long> friends = new HashSet<>();
+    private HashMap<Long, Status> friends = new HashMap<>();
     @Email
     @NotBlank
     private String email;
@@ -25,12 +24,4 @@ public class User {
     @NotNull
     @PastOrPresent
     private LocalDate birthday;
-
-    public void addFriend(Long friendId) {
-        this.friends.add(friendId);
-    }
-
-    public void deleteFriend(Long friendId) {
-        this.friends.remove(friendId);
-    }
 }
