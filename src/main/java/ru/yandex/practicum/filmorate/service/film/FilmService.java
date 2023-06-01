@@ -1,14 +1,12 @@
 package ru.yandex.practicum.filmorate.service.film;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.exceptions.FilmLikeAlreadyAddedException;
-import ru.yandex.practicum.filmorate.exceptions.FilmLikeNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.FilmStorage;
-import ru.yandex.practicum.filmorate.storage.LikesStorage;
-import ru.yandex.practicum.filmorate.storage.UserStorage;
+import ru.yandex.practicum.filmorate.storage.interfaces.FilmGenreStorage;
+import ru.yandex.practicum.filmorate.storage.interfaces.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.interfaces.LikesStorage;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -16,40 +14,43 @@ import java.util.stream.Collectors;
 @Service
 public class FilmService {
     private final FilmStorage filmStorage;
-    private final UserStorage userStorage;
+    private final FilmGenreStorage filmGenreStorage;
     private final LikesStorage likesStorage;
 
+    @Autowired
     public FilmService(@Qualifier("FilmDbStorage") FilmStorage filmStorage,
-                       @Qualifier("UserDbStorage") UserStorage userStorage,
+                       FilmGenreStorage filmGenreStorage,
                        LikesStorage likesStorage) {
         this.filmStorage = filmStorage;
-        this.userStorage = userStorage;
+        this.filmGenreStorage = filmGenreStorage;
         this.likesStorage = likesStorage;
     }
 
-    public void addLike(Long filmId, Long userId) {
-        Film film = filmStorage.getFilmById(filmId);
-        User user = userStorage.getUserById(userId);
-
-        if (film.getLikes().contains(userId))
-            throw new FilmLikeAlreadyAddedException(String.format("Пользователь %s уже поставил лайк фильму %s.",
-                    user.getName(), film.getName()));
-        likesStorage.addLike(filmId, userId);
+    public Film addFilm(Film film) {
+        Long id = filmStorage.insertFilm(film);
+        filmGenreStorage.insertGenres(id, film.getGenres());
+        return getFilm(id);
     }
 
-    public void deleteLike(Long filmId, Long userId) {
-        Film film = filmStorage.getFilmById(filmId);
-        User user = userStorage.getUserById(userId);
-
-        if (!film.getLikes().contains(userId)) {
-            throw new FilmLikeNotFoundException(String.format("Пользователь %s не ставил лайк фильму %s, поэтому " +
-                    "лайк не может быть удалён.", user.getName(), film.getName()));
-        }
-        likesStorage.deleteLike(filmId, userId);
+    public Film updateFilm(Film film) {
+        filmStorage.updateFilm(film);
+        filmGenreStorage.updateGenres(film.getId(), film.getGenres());
+        return getFilm(film.getId());
     }
 
-    public List<Film> getNthPopularFilms(int count) {
-        return filmStorage.getFilms().stream().sorted((f1, f2) -> f2.getLikes().size() -
-                f1.getLikes().size()).limit(count).collect(Collectors.toList());
+    public List<Film> getFilms() {
+        return filmStorage.loadFilms().stream()
+                .map(f -> f.toBuilder()
+                        .likes(likesStorage.loadLikes(f.getId()))
+                        .genres(filmGenreStorage.loadGenres(f.getId()))
+                        .build())
+                .collect(Collectors.toList());
+    }
+
+    public Film getFilm(Long id) {
+        return filmStorage.getFilm(id).toBuilder()
+                .likes(likesStorage.loadLikes(id))
+                .genres(filmGenreStorage.loadGenres(id))
+                .build();
     }
 }

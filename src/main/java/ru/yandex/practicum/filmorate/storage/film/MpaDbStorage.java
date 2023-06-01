@@ -3,11 +3,9 @@ package ru.yandex.practicum.filmorate.storage.film;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.exceptions.GenreNotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.MpaNotFoundException;
-import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
-import ru.yandex.practicum.filmorate.storage.MpaStorage;
+import ru.yandex.practicum.filmorate.storage.interfaces.MpaStorage;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -21,7 +19,7 @@ public class MpaDbStorage implements MpaStorage {
     }
 
     @Override
-    public List<Mpa> getMpa() {
+    public List<Mpa> loadMpas() {
         String sql = "SELECT * FROM ratings";
         return jdbcTemplate.query(sql, (rs, rowNum) ->
                         Mpa.valueOf(rs.getString("name")))
@@ -29,7 +27,7 @@ public class MpaDbStorage implements MpaStorage {
     }
 
     @Override
-    public Mpa getMpa(int id) {
+    public Mpa loadMpa(int id) {
         String sql = "SELECT * FROM ratings WHERE rating_id = ?";
         SqlRowSet mpaRow = jdbcTemplate.queryForRowSet(sql, id);
         if (!mpaRow.next())

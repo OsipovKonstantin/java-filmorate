@@ -2,9 +2,10 @@ package ru.yandex.practicum.filmorate.storage.film;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.storage.LikesStorage;
+import ru.yandex.practicum.filmorate.storage.interfaces.LikesStorage;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Component
@@ -16,7 +17,7 @@ public class LikesDbStorage implements LikesStorage {
     }
 
     @Override
-    public void addLike(Long filmId, Long userId) {
+    public void insertLike(Long filmId, Long userId) {
         String sql = "INSERT INTO film_likes (film_id, user_id) VALUES (?, ?)";
         jdbcTemplate.update(sql, filmId, userId);
     }
@@ -28,8 +29,18 @@ public class LikesDbStorage implements LikesStorage {
     }
 
     @Override
-    public Set<Long> getLikesByFilmId(Long id) {
+    public List<Long> loadPopularFilmsId(int count) {
+        String sql = "SELECT * FROM films f " +
+                "LEFT JOIN film_likes fl ON f.film_id = fl.film_id " +
+                "GROUP BY f.film_id " +
+                "ORDER BY COUNT(fl.user_id) DESC " +
+                "LIMIT ?";
+        return jdbcTemplate.query(sql, (rs, rowNum) -> rs.getLong("films.film_id"), count);
+    }
+
+    @Override
+    public Set<Long> loadLikes(Long filmId) {
         String sql = "SELECT * FROM film_likes WHERE film_id = ?";
-        return new HashSet<>(jdbcTemplate.query(sql, (rs, rowNum) -> rs.getLong("user_id"), id));
+        return new HashSet<>(jdbcTemplate.query(sql, (rs, rowNum) -> rs.getLong("user_id"), filmId));
     }
 }

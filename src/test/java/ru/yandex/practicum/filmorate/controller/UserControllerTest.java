@@ -1,30 +1,30 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.DirtiesContext;
 import ru.yandex.practicum.filmorate.exceptions.UserNotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.service.user.UserService;
-import ru.yandex.practicum.filmorate.storage.user.FriendsDbStorage;
-import ru.yandex.practicum.filmorate.storage.FriendsStorage;
-import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
-import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.Set;
 
+@SpringBootTest
+@AutoConfigureTestDatabase
+@RequiredArgsConstructor(onConstructor_ = @Autowired)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 class UserControllerTest {
     private Validator validator;
-    private final JdbcTemplate jdbcTemplate = new JdbcTemplate();
-    private final UserStorage userStorage = new InMemoryUserStorage();
-    private final FriendsStorage friendsStorage = new FriendsDbStorage(jdbcTemplate);
-    private final UserService userService = new UserService(userStorage, friendsStorage);
-    private final UserController controller = new UserController(userStorage, userService);
+    private final UserController controller;
 
     @BeforeEach
     public void beforeEach() {
@@ -34,11 +34,20 @@ class UserControllerTest {
     @Test
     void createUser() {
         User user = User.builder().email("bigman@ya.ru").login("BigMan").name("Mannish")
-                .birthday(LocalDate.of(1994, 1, 1)).build();
-        controller.addUser(user);
+                .birthday(LocalDate.of(1994, 1, 1)).friends(new HashMap<>()).build();
+        User addedUser = controller.addUser(user);
 
         Assertions.assertEquals(1, controller.getUsers().size(), "Неверное количество пользователей.");
-        Assertions.assertEquals(user, controller.getUsers().get(0), "Пользователи не совпадают.");
+        Assertions.assertEquals(user.getEmail(), controller.getUsers().get(0).getEmail(),
+                "Почты не совпадают.");
+        Assertions.assertEquals(user.getLogin(), controller.getUsers().get(0).getLogin(),
+                "Логины не совпадают.");
+        Assertions.assertEquals(user.getName(), controller.getUsers().get(0).getName(),
+                "Имена не совпадают.");
+        Assertions.assertEquals(user.getBirthday(), controller.getUsers().get(0).getBirthday(),
+                "Дни рождения не совпадают.");
+        Assertions.assertEquals(user.getFriends(), controller.getUsers().get(0).getFriends(),
+                "Список друзей не совпадает.");
     }
 
     @Test
@@ -109,15 +118,25 @@ class UserControllerTest {
     @Test
     void updateUser() {
         User user = User.builder().email("bigman@ya.ru").login("BigMan").name("Mannish")
-                .birthday(LocalDate.of(1994, 1, 1)).build();
-        controller.addUser(user);
+                .birthday(LocalDate.of(1994, 1, 1)).friends(new HashMap<>()).build();
+        User addedUser = controller.addUser(user);
 
-        User updatedUser = user.toBuilder().email("smallwoman@google.com").login("SmallWoman").name("Womanish")
-                .birthday(LocalDate.of(2004, 12, 12)).build();
+        User updatedUser = user.toBuilder().id(addedUser.getId()).email("smallwoman@google.com").login("SmallWoman")
+                .name("Womanish").birthday(LocalDate.of(2004, 12, 12)).friends(new HashMap<>())
+                .build();
         controller.updateUser(updatedUser);
 
         Assertions.assertEquals(1, controller.getUsers().size(), "Неверное количество пользователей.");
-        Assertions.assertEquals(updatedUser, controller.getUsers().get(0), "Пользователи не совпадают.");
+        Assertions.assertEquals(updatedUser.getEmail(), controller.getUsers().get(0).getEmail(),
+                "Почты не совпадают.");
+        Assertions.assertEquals(updatedUser.getLogin(), controller.getUsers().get(0).getLogin(),
+                "Логины не совпадают.");
+        Assertions.assertEquals(updatedUser.getName(), controller.getUsers().get(0).getName(),
+                "Имена не совпадают.");
+        Assertions.assertEquals(updatedUser.getBirthday(), controller.getUsers().get(0).getBirthday(),
+                "Дни рождения не совпадают.");
+        Assertions.assertEquals(updatedUser.getFriends(), controller.getUsers().get(0).getFriends(),
+                "Список друзей не совпадает.");
     }
 
     @Test
@@ -154,10 +173,10 @@ class UserControllerTest {
     void updateUserWithBlankName() {
         User user = User.builder().email("bigman@ya.ru").login("BigMan").name("Mannish")
                 .birthday(LocalDate.of(1994, 1, 1)).build();
-        controller.addUser(user);
+        User addedUser = controller.addUser(user);
 
-        User updatedUser = user.toBuilder().email("smallwoman@google.com").login("SmallWoman").name(" ")
-                .birthday(LocalDate.of(2004, 12, 12)).build();
+        User updatedUser = user.toBuilder().id(addedUser.getId()).email("smallwoman@google.com").login("SmallWoman")
+                .name(" ").birthday(LocalDate.of(2004, 12, 12)).build();
         controller.updateUser(updatedUser);
 
         Assertions.assertEquals(1, controller.getUsers().size(), "Неверное количество пользователей.");
@@ -189,7 +208,7 @@ class UserControllerTest {
 
         UserNotFoundException e = Assertions.assertThrows(UserNotFoundException.class,
                 () -> controller.updateUser(updatedUser));
-        Assertions.assertEquals("Невозможно обновить пользователя. id: " + updatedUser.getId()
+        Assertions.assertEquals("Пользователя с id " + updatedUser.getId()
                 + " не существует.", e.getMessage(), "Сообщения об ошибке не совпадают.");
     }
 
@@ -197,16 +216,16 @@ class UserControllerTest {
     void updateUserWithEmptyUserOrWithoutLoginOrEmailOrNameOrBirthday() {
         User user = User.builder().email("bigman@ya.ru").login("BigMan").name("Mannish")
                 .birthday(LocalDate.of(1994, 1, 1)).build();
-        controller.addUser(user);
+        User addedUser = controller.addUser(user);
 
-        User updatedUserEmpty = User.builder().id(user.getId()).build();
-        User updatedUserWithoutLogin = User.builder().id(user.getId()).email("bigman@ya.ru").name("Mannish")
+        User updatedUserEmpty = User.builder().id(addedUser.getId()).build();
+        User updatedUserWithoutLogin = User.builder().id(addedUser.getId()).email("bigman@ya.ru").name("Mannish")
                 .birthday(LocalDate.of(1994, 1, 1)).build();
-        User updatedUserWithoutEmail = User.builder().id(user.getId()).login("BigMan").name("Mannish")
+        User updatedUserWithoutEmail = User.builder().id(addedUser.getId()).login("BigMan").name("Mannish")
                 .birthday(LocalDate.of(1994, 1, 1)).build();
-        User updatedUserWithoutName = User.builder().id(user.getId()).email("bigman@ya.ru").login("BigMan")
+        User updatedUserWithoutName = User.builder().id(addedUser.getId()).email("bigman@ya.ru").login("BigMan")
                 .birthday(LocalDate.of(1994, 1, 1)).build();
-        User updatedUserWithoutBirthday = User.builder().id(user.getId()).email("bigman@ya.ru").login("BigMan")
+        User updatedUserWithoutBirthday = User.builder().id(addedUser.getId()).email("bigman@ya.ru").login("BigMan")
                 .name("Mannish").build();
 
         Set<ConstraintViolation<User>> violations = validator.validate(updatedUserEmpty);
