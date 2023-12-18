@@ -31,7 +31,10 @@
 | GET /films/{filmId}/like/{userId} | добавление лайка фильму |
 | DELETE /films/{filmId}/like/{userId} | удаление лайка у фильма |
 | GET /films/popular?count={count} | получение списка популярных фильмов длиной count. Параметр count не обязательный, по умолчанию равен 10 |
-
+| GET /genres | получение списка жанров фильмов |
+| GET /genres/{id} | получение жанра по id |
+| GET /mpa | получение списка рейтингов MPAA фильмов |
+| GET /mpa/{id} | получение рейтинга MPAA по id |
 
 ## Диаграмма базы данных
 ![схема БД H2](filmorate_schema_DB.png)
