@@ -12,7 +12,7 @@
 ## Архитектура
 ## Функциональность
 ## Диаграмма базы данных
-![ER_diagram for filmorate db](filmorate_Osipov_KO.png)
+![схема БД H2](filmorate_schema_DB.png)
 ## Как использовать
 
 
