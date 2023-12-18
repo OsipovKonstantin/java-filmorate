@@ -57,4 +57,4 @@ java -jar target\filmorate-0.0.1-SNAPSHOT.jar
 
 Со сценариями работы приложения можно ознакомиться, посмотрев и запустив [коллекцию Postman-тестов](postman/filmorate.json)
 
-Дальнейшая разработка данного приложения была реализована в групповом проекте https://github.com/GlazyrinAV/java-filmorate
+Дальнейшая разработка приложения велась в групповом проекте https://github.com/GlazyrinAV/java-filmorate
