@@ -24,6 +24,14 @@
 | DELETE /users/{id}/friends/{friendId} | удаление пользователя из друзей |
 | GET /users/{id}/friends | получение списка друзей пользователя |
 | GET /users/{id}/friends/common/{otherId} | получение общих друзей двух пользователей |
+| GET /films | получение списка фильмов |
+| GET /films/{id} | получение фильма по id |
+| POST /films | добавление фильма |
+| PUT /films | изменение информации о фильме |
+| GET /films/{filmId}/like/{userId} | добавление лайка фильму |
+| DELETE /films/{filmId}/like/{userId} | удаление лайка у фильма |
+| GET /films/popular?count={count} | получение списка популярных фильмов длиной count. Параметр count не обязательный, по умолчанию равен 10 |
+
 
 ## Диаграмма базы данных
 ![схема БД H2](filmorate_schema_DB.png)
