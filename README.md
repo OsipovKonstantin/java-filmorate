@@ -9,6 +9,7 @@
 [![Postman](https://img.shields.io/badge/Postman-FF6C37?style=for-the-badge&logo=postman&logoColor=white)](https://www.postman.com/)
 
 ## Описание
+Приложение, похожее на кинопоиск. В нём пользователи могут ставить оценки фильмам и добавлять пользователей в друзья
 ## Архитектура
 Монолитное приложение, данные хранятся в БД H2
 ## Функциональность
