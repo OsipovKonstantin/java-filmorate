@@ -1,4 +1,4 @@
-![image](https://github.com/OsipovKonstantin/java-filmorate/assets/98541812/217fd3c8-f52c-4a51-80f7-a687254316de)
+[![image](https://github.com/OsipovKonstantin/java-filmorate/assets/98541812/bd33b41e-4bcc-4fa9-a286-be5b6c09300d)](https://nypost.com/2022/05/31/movie-theaters-have-popcorn-candy-shortages-over-inflation/)
 # filmorate - сервис оценки фильмов и получения рекомендаций
 [![Java](https://img.shields.io/badge/-Java%2011-F29111?style=for-the-badge&logo=java&logoColor=e38873)](https://www.oracle.com/java/)
 [![Spring](https://img.shields.io/badge/-Spring%202.7.1-6AAD3D?style=for-the-badge&logo=spring&logoColor=90fd87)](https://spring.io/projects/spring-framework) 
