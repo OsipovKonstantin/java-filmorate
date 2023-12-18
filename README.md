@@ -20,6 +20,11 @@
 | POST /users | добавление пользователя |
 | DELETE /users/{id} | удаление пользователя по id |
 | PUT /users | изменение информации о пользователе |
+| PUT /users/{id}/friends/{friendId} | добавление пользователя в друзья |
+| DELETE /users/{id}/friends/{friendId} | удаление пользователя из друзей |
+| GET /users/{id}/friends | получение списка друзей пользователя |
+| GET /users/{id}/friends/common/{otherId} | получение общих друзей двух пользователей |
+
 ## Диаграмма базы данных
 ![схема БД H2](filmorate_schema_DB.png)
 ## Как использовать
