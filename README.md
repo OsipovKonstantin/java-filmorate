@@ -46,7 +46,7 @@
    ```
 git clone https://github.com/OsipovKonstantin/java-filmorate.git
    ```
-В командной строке перейдите в корень проекта. Затем:
+В командной строке перейдите в корень проекта. Далее
    ```
 mvn clean package
    ```
@@ -57,4 +57,4 @@ java -jar target\filmorate-0.0.1-SNAPSHOT.jar
 
 Со сценариями работы приложения можно ознакомиться, посмотрев и запустив [коллекцию Postman-тестов](postman/filmorate.json)
 
-Дальнейшая разработка приложения велась в групповом проекте https://github.com/GlazyrinAV/java-filmorate
+Дальнейшая разработка приложения велась в [групповом проекте](https://github.com/GlazyrinAV/java-filmorate)
