@@ -55,6 +55,6 @@ java -jar target\filmorate-0.0.1-SNAPSHOT.jar
    ```
 Приложение готово к использованию! Сервис доступен по андресу [http://localhost:8080](http://localhost:8080)
 
-Со сценариями работы приложения можно ознакомиться, посмотрев и запустив [коллекцию Postman-тестов](postman/filmorate.json)
+Со сценариями работы приложения ознакомьтесь, посмотрев и запустив [коллекцию Postman-тестов](postman/filmorate.json)
 
 Дальнейшая разработка приложения велась в [групповом проекте](https://github.com/GlazyrinAV/java-filmorate)
