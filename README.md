@@ -46,7 +46,7 @@
    ```
 git clone https://github.com/OsipovKonstantin/java-filmorate.git
    ```
-В командной строке перейдите в корень проекта. Далее
+В командной строке переходите в корень проекта. Далее
    ```
 mvn clean package
    ```
